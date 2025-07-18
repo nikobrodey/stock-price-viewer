@@ -11,8 +11,15 @@ def main():
     duration = st.selectbox("Select time duration:", ["1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"])
 
     if st.button("Show Chart"):
-        # Fetch stock data
-        stock_data = yf.Ticker(ticker).history(period=duration)
+        # Fetch stock data with basic error handling
+        try:
+            stock_data = yf.Ticker(ticker).history(period=duration)
+        except Exception as e:
+            st.error(f"Error fetching data: {e}")
+            return
+        if stock_data.empty:
+            st.error("No data available for this ticker and duration.")
+            return
 
         # Create interactive chart
         fig = go.Figure(data=[go.Candlestick(x=stock_data.index,
